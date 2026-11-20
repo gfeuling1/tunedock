@@ -5,7 +5,7 @@ A small Windows overlay that shows what's playing in **YouTube Music (installed 
 - **Desktop:** a compact "now playing" card is locked to the **bottom-right corner** and stays on top of every window.
 - **Games:** when a full-screen game is in front, the card gets out of the way. While the game is paused, push the mouse to the **top edge** of the screen and a panel **slides down** with the same info and controls, similar to the Windows 11 Snap Layouts bar.
 
-Built with C# / WPF on .NET 8.
+Built with C# / WPF on .NET 10 (LTS, supported until November 2028).
 
 ## How it works
 
@@ -30,7 +30,7 @@ Built with C# / WPF on .NET 8.
 ## Requirements
 
 - Windows 10 (version 2004 / build 19041) or Windows 11
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) to build (or just the .NET 8 Desktop Runtime to run a published build)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) to build (or just the .NET 10 Desktop Runtime to run a published build)
 - YouTube Music installed from Brave (open music.youtube.com in Brave, then Menu → Install YouTube Music)
 
 ## Build and run
@@ -41,7 +41,7 @@ cd tunedock
 dotnet run --project src/TuneDock
 ```
 
-Or open `TuneDock.sln` in Visual Studio 2022 and press F5.
+Or open `TuneDock.sln` in Visual Studio 2026 and press F5.
 
 Every push also builds on GitHub Actions; the **Actions** tab has a downloadable `TuneDock-win-x64` artifact with a ready-to-run `TuneDock.exe`.
 

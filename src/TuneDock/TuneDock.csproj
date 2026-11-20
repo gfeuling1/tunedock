@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <!-- The 10.0.19041 suffix unlocks the Windows media APIs (Windows.Media.Control). -->
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <UseWPF>true</UseWPF>
     <!-- Only used for the system tray icon (NotifyIcon). -->
@@ -18,7 +18,7 @@
     <!-- Lets the project compile on non-Windows CI machines too. -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <!-- WinForms analyzer warning; DPI is set in app.manifest because this is a WPF app. -->
-    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+    <NoWarn>$(NoWarn);WFAC010;WFO0003</NoWarn>
   </PropertyGroup>
 
 </Project>

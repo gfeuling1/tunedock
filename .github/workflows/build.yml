@@ -14,12 +14,12 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Build
         run: dotnet build TuneDock.sln -c Release
 
-      - name: Publish (single-file exe, needs .NET 8 Desktop Runtime)
+      - name: Publish (single-file exe, needs .NET 10 Desktop Runtime)
         run: dotnet publish src/TuneDock/TuneDock.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o publish
 
       - uses: actions/upload-artifact@v4
