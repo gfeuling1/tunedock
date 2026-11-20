@@ -9,10 +9,11 @@ public sealed class TrayIcon : IDisposable
 {
     private readonly Forms.NotifyIcon _icon;
 
-    public TrayIcon(Action toggleMiniPlayer, Action openSettings, Action exit)
+    public TrayIcon(Action toggleMiniPlayer, Action resetPosition, Action openSettings, Action exit)
     {
         var menu = new Forms.ContextMenuStrip();
         menu.Items.Add("Show / hide mini player", null, (_, _) => toggleMiniPlayer());
+        menu.Items.Add("Move mini player back to corner", null, (_, _) => resetPosition());
         menu.Items.Add("Open settings file", null, (_, _) => openSettings());
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Exit TuneDock", null, (_, _) => exit());

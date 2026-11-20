@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using TuneDock.Interop;
@@ -16,11 +17,23 @@ public partial class TopEdgePanelWindow : Window
 {
     private static readonly Duration SlideDuration = new(TimeSpan.FromMilliseconds(180));
 
+    private readonly PlayerViewModel _viewModel;
+
     public TopEdgePanelWindow(PlayerViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
         DataContext = viewModel;
         SourceInitialized += (_, _) => WindowHelper.ApplyOverlayStyles(this);
+    }
+
+    /// <summary>Clicking the card (not a button or the album link) switches to YouTube Music.</summary>
+    protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+    {
+        base.OnMouseLeftButtonUp(e);
+        if (e.Handled || InputHelper.IsFromInteractiveElement(e.OriginalSource)) return;
+        e.Handled = true;
+        _viewModel.OpenYouTubeMusic();
     }
 
     /// <summary>True while the panel is open or opening.</summary>

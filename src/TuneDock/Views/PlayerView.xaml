@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!-- Shared "now playing" card used by both the corner mini player and the top-edge panel. -->
     <Border Width="360"
+            Cursor="Hand"
             Padding="10"
             CornerRadius="12"
             Background="{StaticResource CardBackground}"
@@ -46,6 +47,17 @@
                            FontSize="12"
                            Margin="0,1,0,0"
                            TextTrimming="CharacterEllipsis" />
+                <!-- Album name as a link (opens the album in YouTube Music) -->
+                <TextBlock FontSize="11"
+                           Margin="0,1,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           Visibility="{Binding HasAlbum, Converter={StaticResource BoolToVis}}">
+                    <Hyperlink Command="{Binding OpenAlbumCommand}"
+                               ToolTip="Open album in YouTube Music"
+                               Style="{StaticResource AlbumLink}">
+                        <Run Text="{Binding Album, Mode=OneWay}" />
+                    </Hyperlink>
+                </TextBlock>
                 <Grid Margin="0,6,0,0" Visibility="{Binding HasTimeline, Converter={StaticResource BoolToVis}}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />

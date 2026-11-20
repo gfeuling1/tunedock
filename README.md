@@ -2,7 +2,8 @@
 
 A small Windows overlay that shows what's playing in **YouTube Music (installed as an app from Brave)** and gives you previous / play-pause / next controls.
 
-- **Desktop:** a compact "now playing" card is locked to the **bottom-right corner** and stays on top of every window.
+- **Desktop:** a compact "now playing" card starts in the **bottom-right corner** and stays on top of every window. **Drag it** anywhere and it remembers the spot. The taskbar always stays above it, so it never blocks the Start button or tray icons.
+- **Click the card** to jump to YouTube Music. **Click the album name** to open that album in YouTube Music.
 - **Games:** when a full-screen game is in front, the card gets out of the way. While the game is paused, push the mouse to the **top edge** of the screen and a panel **slides down** with the same info and controls, similar to the Windows 11 Snap Layouts bar.
 
 Built with C# / WPF on .NET 10 (LTS, supported until November 2028).
@@ -19,10 +20,14 @@ Built with C# / WPF on .NET 10 (LTS, supported until November 2028).
 | Game detection | `Services/ForegroundDetector.cs` | Treats the foreground window as a game when it covers its whole monitor (and isn't a browser / Explorer). Also checks if the mouse pointer is visible. |
 | Orchestration | `Services/OverlayController.cs` | 50 ms loop that switches between desktop mode and game mode and opens/closes the top panel. |
 | Win32 glue | `Interop/*.cs` | Foreground window, monitor bounds, cursor info, and "never steal focus" window styles. |
-| Tray icon | `TrayIcon.cs` | Show/hide the mini player, open settings, exit. |
+| App launcher | `Services/YouTubeMusicLauncher.cs` | Focuses the open YouTube Music window, or launches the Brave app (`brave.exe --app-id=...`). Album links open a YouTube Music search for "album artist" inside the app. |
+| Tray icon | `TrayIcon.cs` | Show/hide the mini player, move it back to the corner, open settings, exit. |
 
 ### Overlay behavior
 
+- **Click vs. drag:** pressing on the card and moving it more than a few pixels drags it; a press without moving counts as a click and opens YouTube Music. The buttons and album link do their own thing and never drag.
+- **Taskbar on top:** TuneDock keeps itself in the "always on top" layer but directly *underneath* the taskbar, so if you drag the card over the taskbar, the taskbar wins.
+- **Album link:** Windows' media info only includes the album *name*, not a link, so TuneDock searches YouTube Music for "album + artist". The album is normally the first result.
 - Both overlay windows use `WS_EX_NOACTIVATE` + `WS_EX_TOOLWINDOW`. **Clicking them never takes focus from your game** and they don't appear in Alt+Tab.
 - **Detecting "paused":** there is no universal way to read a game's pause state. TuneDock uses a reliable proxy instead: games hide the mouse pointer during gameplay and show it in menus. The panel only opens when the pointer is **visible**, has rested at the top edge for ~150 ms, and is in the middle 60% of the screen. It closes when the pointer moves away or the game hides the pointer again.
 - **Exclusive full-screen games:** in true exclusive full screen, the game owns the display and no normal window can draw over it. TuneDock still hides the corner player, but the top panel can't appear. **Set those games to "Borderless" / "Windowed Fullscreen"** (most modern games default to this). TuneDock deliberately doesn't inject into games the way Discord/Steam overlays do, since that can trigger anti-cheat.
@@ -61,6 +66,10 @@ On first launch TuneDock writes `%APPDATA%\TuneDock\settings.json` (tray icon â†
 | `IdleOpacity` | `0.9` | Card opacity when the mouse isn't over it. |
 | `HideMiniPlayerInGames` | `true` | Hide the corner card while a game is full screen. |
 | `NotGameProcesses` | browsers + Explorer | Full-screen apps that should **not** count as games (so full-screen video keeps the card). Remove `brave` if you'd rather it hide during full-screen video. |
+| `MiniPlayerLeft` / `MiniPlayerTop` | `null` | Saved drag position. `null` means the bottom-right corner (tray â†’ **Move mini player back to corner** resets it). |
+| `YouTubeMusicAppId` | `cinhimbnkkaeohfgghhklpknlkffjgod` | ID of the YouTube Music app installed in Brave. |
+| `BraveProfileDirectory` | `Default` | Brave profile the app is installed in (`Profile 1`, etc. if you use multiple profiles). |
+| `BraveExePath` | `null` | Path to `brave.exe`; found automatically when `null`. |
 | `RequireVisibleCursor` | `true` | Only open the top panel when the pointer is visible. Set `false` for games that draw their own cursor. |
 | `TopEdgeTriggerPixels` | `2` | How close to the top edge the pointer must be. |
 | `TopEdgeDwellMs` | `150` | How long to rest at the edge before the panel opens. |
@@ -70,6 +79,7 @@ On first launch TuneDock writes `%APPDATA%\TuneDock\settings.json` (tray icon â†
 
 - **"Nothing playing" while music plays:** confirm the song shows in the Windows volume flyout (`Win + A` on Windows 11). If it does, hover the tray icon; if another app is being followed, set `OnlyPreferredSources` to `true`.
 - **Top panel never appears in a game:** switch the game to borderless/windowed fullscreen. If the game uses its own cursor, set `RequireVisibleCursor` to `false`.
+- **Clicking the card opens the wrong thing (or nothing):** open `brave://apps` in Brave, right-click YouTube Music â†’ **App info**, and compare the ID with `YouTubeMusicAppId`. If you installed it in a different Brave profile, set `BraveProfileDirectory`.
 - **Card hides when it shouldn't:** add that app's process name (as shown in Task Manager â†’ Details, without `.exe`) to `NotGameProcesses`.
 
 ## Roadmap ideas
@@ -78,4 +88,5 @@ On first launch TuneDock writes `%APPDATA%\TuneDock\settings.json` (tray icon â†
 - Custom tray icon / app icon
 - Seek by clicking the progress bar
 - Volume control and like/dislike (would need a Brave extension, since Windows' media API doesn't expose those)
-- Choose which monitor corner the mini player uses
+- Snap the mini player to screen edges/corners while dragging
+- Exact album links (would need the YouTube Music page itself, via a Brave extension)

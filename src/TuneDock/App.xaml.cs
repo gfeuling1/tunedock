@@ -29,7 +29,8 @@ public partial class App : Application
 
         var settings = AppSettings.Load();
         _media = new MediaService(settings);
-        var viewModel = new PlayerViewModel(_media, Dispatcher);
+        var launcher = new YouTubeMusicLauncher(settings);
+        var viewModel = new PlayerViewModel(_media, launcher, Dispatcher);
 
         var mini = new MiniPlayerWindow(viewModel, settings);
         var panel = new TopEdgePanelWindow(viewModel);
@@ -37,6 +38,7 @@ public partial class App : Application
         _controller = new OverlayController(mini, panel, settings, _media);
         _tray = new TrayIcon(
             toggleMiniPlayer: () => _controller.ToggleMiniPlayer(),
+            resetPosition: mini.ResetPosition,
             openSettings: OpenSettingsFile,
             exit: ExitApp);
 

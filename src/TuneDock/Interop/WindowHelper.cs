@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Windows;
 using System.Windows.Interop;
 using static TuneDock.Interop.NativeMethods;
@@ -28,6 +29,36 @@ internal static class WindowHelper
         var hwnd = GetHandle(window);
         if (hwnd == IntPtr.Zero) return;
         SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    }
+
+    /// <summary>
+    /// Keep the window "always on top" but directly underneath the taskbar(s), so the
+    /// taskbar stays clickable if the mini player is dragged over it.
+    /// </summary>
+    public static void PlaceBelowTaskbars(Window window)
+    {
+        var hwnd = GetHandle(window);
+        if (hwnd == IntPtr.Zero) return;
+
+        // Walk the z-order from the top and remember the lowest taskbar window.
+        IntPtr lowestTaskbar = IntPtr.Zero;
+        var cls = new StringBuilder(64);
+        for (var h = GetTopWindow(IntPtr.Zero); h != IntPtr.Zero; h = GetWindow(h, GW_HWNDNEXT))
+        {
+            cls.Clear();
+            GetClassName(h, cls, cls.Capacity);
+            var name = cls.ToString();
+            if (name == "Shell_TrayWnd" || name == "Shell_SecondaryTrayWnd") lowestTaskbar = h;
+        }
+
+        if (lowestTaskbar == IntPtr.Zero)
+        {
+            BringToTop(window);
+            return;
+        }
+
+        // Inserting after a topmost window keeps us in the topmost band, just below it.
+        SetWindowPos(hwnd, lowestTaskbar, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     }
 
     /// <summary>Move the window to a position given in physical pixels and keep it topmost.</summary>

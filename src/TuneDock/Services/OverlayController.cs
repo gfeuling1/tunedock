@@ -1,6 +1,5 @@
 using System;
 using System.Windows.Threading;
-using TuneDock.Interop;
 using TuneDock.Views;
 
 namespace TuneDock.Services;
@@ -72,10 +71,11 @@ public sealed class OverlayController : IDisposable
 
         if (!_gameMode)
         {
-            // Other "always on top" windows can cover us; quietly push back to the front.
+            // Other "always on top" windows can cover us; quietly move back to the front
+            // (but always underneath the taskbar so it stays clickable).
             if (_mini.IsVisible && now - _lastTopmost > ReassertTopmostEvery)
             {
-                WindowHelper.BringToTop(_mini);
+                _mini.KeepOnTop();
                 _lastTopmost = now;
             }
         }

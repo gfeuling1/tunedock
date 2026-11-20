@@ -52,6 +52,25 @@ public sealed class AppSettings
     /// <summary>How long (ms) after the pointer leaves the panel before it slides away.</summary>
     public int TopEdgeHideDelayMs { get; set; } = 400;
 
+    /// <summary>
+    /// Saved mini player position (DIPs) after you drag it. null = bottom-right corner.
+    /// Use the tray menu's "Reset position" to go back to the corner.
+    /// </summary>
+    public double? MiniPlayerLeft { get; set; }
+    public double? MiniPlayerTop { get; set; }
+
+    /// <summary>
+    /// ID of the YouTube Music web app installed in Brave. This is the standard ID
+    /// for music.youtube.com; check brave://apps (right-click → App info) if yours differs.
+    /// </summary>
+    public string YouTubeMusicAppId { get; set; } = "cinhimbnkkaeohfgghhklpknlkffjgod";
+
+    /// <summary>Brave profile folder the app is installed in ("Default", "Profile 1", ...).</summary>
+    public string BraveProfileDirectory { get; set; } = "Default";
+
+    /// <summary>Full path to brave.exe. Leave null to find it automatically.</summary>
+    public string? BraveExePath { get; set; }
+
     public static string FolderPath =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TuneDock");
 
@@ -96,6 +115,8 @@ public sealed class AppSettings
     {
         PreferredSourceKeywords ??= Array.Empty<string>();
         NotGameProcesses ??= Array.Empty<string>();
+        if (string.IsNullOrWhiteSpace(YouTubeMusicAppId)) YouTubeMusicAppId = "cinhimbnkkaeohfgghhklpknlkffjgod";
+        if (string.IsNullOrWhiteSpace(BraveProfileDirectory)) BraveProfileDirectory = "Default";
         IdleOpacity = Math.Clamp(IdleOpacity, 0.2, 1.0);
         TopEdgeTriggerPixels = Math.Max(1, TopEdgeTriggerPixels);
         TopEdgeDwellMs = Math.Max(0, TopEdgeDwellMs);
