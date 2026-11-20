@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- The 10.0.19041 suffix unlocks the Windows media APIs (Windows.Media.Control). -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <!-- Only used for the system tray icon (NotifyIcon). -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <!-- Off on purpose: WPF + WinForms share type names like Application and Button. -->
+    <ImplicitUsings>disable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>TuneDock</AssemblyName>
+    <RootNamespace>TuneDock</RootNamespace>
+    <Version>0.1.0</Version>
+    <!-- Lets the project compile on non-Windows CI machines too. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- WinForms analyzer warning; DPI is set in app.manifest because this is a WPF app. -->
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+  </PropertyGroup>
+
+</Project>

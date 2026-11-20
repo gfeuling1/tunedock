@@ -1,0 +1,79 @@
+<UserControl x:Class="TuneDock.Views.PlayerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Shared "now playing" card used by both the corner mini player and the top-edge panel. -->
+    <Border Width="360"
+            Padding="10"
+            CornerRadius="12"
+            Background="{StaticResource CardBackground}"
+            BorderBrush="{StaticResource CardBorder}"
+            BorderThickness="1">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Album art (falls back to a music note icon) -->
+            <Border Width="52" Height="52" CornerRadius="6" Background="#22FFFFFF">
+                <Grid>
+                    <TextBlock Text="&#xE8D6;"
+                               FontFamily="{StaticResource IconFont}"
+                               FontSize="22"
+                               Foreground="{StaticResource TextSecondary}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding HasNoAlbumArt, Converter={StaticResource BoolToVis}}" />
+                    <Border CornerRadius="6">
+                        <Border.Background>
+                            <ImageBrush ImageSource="{Binding AlbumArt}" Stretch="UniformToFill" />
+                        </Border.Background>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Title, artist, progress -->
+            <StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Title}"
+                           ToolTip="{Binding Title}"
+                           Foreground="{StaticResource TextPrimary}"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding Artist}"
+                           Foreground="{StaticResource TextSecondary}"
+                           FontSize="12"
+                           Margin="0,1,0,0"
+                           TextTrimming="CharacterEllipsis" />
+                <Grid Margin="0,6,0,0" Visibility="{Binding HasTimeline, Converter={StaticResource BoolToVis}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <ProgressBar Height="3"
+                                 Minimum="0"
+                                 Maximum="1"
+                                 Value="{Binding Progress, Mode=OneWay}"
+                                 Foreground="{StaticResource Accent}"
+                                 Background="{StaticResource TrackBackground}"
+                                 BorderThickness="0" />
+                    <TextBlock Grid.Row="1" Text="{Binding PositionText}" FontSize="10" Margin="0,2,0,0"
+                               Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Left" />
+                    <TextBlock Grid.Row="1" Text="{Binding DurationText}" FontSize="10" Margin="0,2,0,0"
+                               Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Right" />
+                </Grid>
+            </StackPanel>
+
+            <!-- Transport controls -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource IconButton}" Content="&#xE892;" ToolTip="Previous"
+                        Command="{Binding PreviousCommand}" IsEnabled="{Binding CanPrevious}" />
+                <Button Style="{StaticResource PlayButton}" Content="{Binding PlayPauseGlyph}" ToolTip="Play / pause"
+                        Command="{Binding PlayPauseCommand}" IsEnabled="{Binding CanPlayPause}" />
+                <Button Style="{StaticResource IconButton}" Content="&#xE893;" ToolTip="Next"
+                        Command="{Binding NextCommand}" IsEnabled="{Binding CanNext}" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
