@@ -9,8 +9,7 @@ using static TuneDock.Interop.NativeMethods;
 namespace TuneDock.Services;
 
 /// <summary>
-/// Brings the YouTube Music app (installed from Brave) to the front, or opens a
-/// YouTube Music page inside it.
+/// Brings the YouTube Music app (installed from Brave) to the front, or launches it.
 /// </summary>
 public sealed class YouTubeMusicLauncher
 {
@@ -25,19 +24,6 @@ public sealed class YouTubeMusicLauncher
         if (TryFocusExistingWindow()) return;
         if (TryLaunchApp(url: null)) return;
         OpenInDefaultBrowser(HomeUrl);
-    }
-
-    /// <summary>
-    /// Open the album in YouTube Music. Windows' media info only includes the album
-    /// name (no link), so this searches YouTube Music for "album artist"; the album
-    /// is normally the top result.
-    /// </summary>
-    public void OpenAlbum(string album, string artist)
-    {
-        var query = string.IsNullOrWhiteSpace(artist) ? album : $"{album} {artist}";
-        var url = HomeUrl + "search?q=" + Uri.EscapeDataString(query);
-        if (TryLaunchApp(url)) return;
-        OpenInDefaultBrowser(url);
     }
 
     private static bool TryFocusExistingWindow()

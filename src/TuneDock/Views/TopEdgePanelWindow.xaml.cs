@@ -27,7 +27,7 @@ public partial class TopEdgePanelWindow : Window
         SourceInitialized += (_, _) => WindowHelper.ApplyOverlayStyles(this);
     }
 
-    /// <summary>Clicking the card (not a button or the album link) switches to YouTube Music.</summary>
+    /// <summary>Clicking the card (not a button) switches to YouTube Music.</summary>
     protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
     {
         base.OnMouseLeftButtonUp(e);

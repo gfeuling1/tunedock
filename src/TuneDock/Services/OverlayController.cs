@@ -25,6 +25,7 @@ public sealed class OverlayController : IDisposable
     private readonly DispatcherTimer _timer;
 
     private bool _gameMode;
+    private bool _onDesktop;
     private bool _userHidMini;
     private DateTime _edgeEnteredAt = DateTime.MinValue;
     private DateTime _panelLeftAt = DateTime.MinValue;
@@ -47,15 +48,26 @@ public sealed class OverlayController : IDisposable
 
     public void Start()
     {
-        if (!_userHidMini) _mini.ShowOverlay();
+        UpdateMiniPlayerVisibility();
         _timer.Start();
     }
 
     public void ToggleMiniPlayer()
     {
         _userHidMini = !_userHidMini;
-        if (_userHidMini) _mini.HideOverlay();
-        else if (!(_gameMode && _settings.HideMiniPlayerInGames)) _mini.ShowOverlay();
+        UpdateMiniPlayerVisibility();
+    }
+
+    /// <summary>The one rule for whether the corner card should be showing right now.</summary>
+    private bool MiniPlayerShouldShow =>
+        !_userHidMini &&
+        !(_gameMode && _settings.HideMiniPlayerInGames) &&
+        !(_onDesktop && _settings.HideMiniPlayerOnDesktop);
+
+    private void UpdateMiniPlayerVisibility()
+    {
+        if (MiniPlayerShouldShow) _mini.ShowOverlay();
+        else _mini.HideOverlay();
     }
 
     private void Tick()
@@ -67,6 +79,12 @@ public sealed class OverlayController : IDisposable
         {
             _gameMode = snap.IsGame;
             OnGameModeChanged();
+        }
+
+        if (snap.IsDesktop != _onDesktop)
+        {
+            _onDesktop = snap.IsDesktop;
+            UpdateMiniPlayerVisibility();
         }
 
         if (!_gameMode)
@@ -93,15 +111,8 @@ public sealed class OverlayController : IDisposable
 
     private void OnGameModeChanged()
     {
-        if (_gameMode)
-        {
-            if (_settings.HideMiniPlayerInGames) _mini.HideOverlay();
-        }
-        else
-        {
-            _panel.HideImmediately();
-            if (!_userHidMini) _mini.ShowOverlay();
-        }
+        if (!_gameMode) _panel.HideImmediately();
+        UpdateMiniPlayerVisibility();
         _edgeEnteredAt = DateTime.MinValue;
         _panelLeftAt = DateTime.MinValue;
         GameModeChanged?.Invoke(_gameMode);

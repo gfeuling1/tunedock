@@ -29,6 +29,18 @@ public sealed class AppSettings
     public bool HideMiniPlayerInGames { get; set; } = true;
 
     /// <summary>
+    /// Hide the corner mini player while the desktop is in front (e.g. after Win+D or
+    /// clicking the wallpaper), so it doesn't double up with a desktop music widget.
+    /// </summary>
+    public bool HideMiniPlayerOnDesktop { get; set; } = true;
+
+    /// <summary>
+    /// Desktop-widget apps. Clicking one of these still counts as "on the desktop".
+    /// Use the process name from Task Manager → Details, without ".exe".
+    /// </summary>
+    public string[] DesktopWidgetProcesses { get; set; } = { "Rainmeter" };
+
+    /// <summary>
     /// Processes that are never treated as games, even when full screen.
     /// Browsers are listed so full-screen video keeps the mini player visible.
     /// Remove them if you want full-screen video to behave like a game.
@@ -115,6 +127,7 @@ public sealed class AppSettings
     {
         PreferredSourceKeywords ??= Array.Empty<string>();
         NotGameProcesses ??= Array.Empty<string>();
+        DesktopWidgetProcesses ??= Array.Empty<string>();
         if (string.IsNullOrWhiteSpace(YouTubeMusicAppId)) YouTubeMusicAppId = "cinhimbnkkaeohfgghhklpknlkffjgod";
         if (string.IsNullOrWhiteSpace(BraveProfileDirectory)) BraveProfileDirectory = "Default";
         IdleOpacity = Math.Clamp(IdleOpacity, 0.2, 1.0);

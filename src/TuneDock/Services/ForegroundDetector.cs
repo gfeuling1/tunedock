@@ -14,7 +14,8 @@ public readonly record struct ForegroundSnapshot(
     IntPtr Monitor,          // monitor the foreground app is on
     RECT MonitorRect,        // that monitor's bounds in physical pixels
     bool CursorVisible,
-    POINT Cursor);
+    POINT Cursor,
+    bool IsDesktop = false); // the desktop (or a desktop-widget app) is in front
 
 /// <summary>
 /// Decides whether a game is in front by checking if the foreground window covers its
@@ -23,6 +24,18 @@ public readonly record struct ForegroundSnapshot(
 /// </summary>
 public sealed class ForegroundDetector
 {
+    // Classes of the desktop itself (wallpaper + icons).
+    private static readonly HashSet<string> DesktopClasses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Progman", "WorkerW",
+    };
+
+    // Taskbar classes: clicking the taskbar shouldn't change whether we're "on the desktop".
+    private static readonly HashSet<string> TaskbarClasses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Shell_TrayWnd", "Shell_SecondaryTrayWnd",
+    };
+
     private static readonly HashSet<string> ShellClasses = new(StringComparer.OrdinalIgnoreCase)
     {
         "Progman", "WorkerW", "Shell_TrayWnd", "Shell_SecondaryTrayWnd",
@@ -57,11 +70,29 @@ public sealed class ForegroundDetector
             exclusive = state == QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN;
 
         bool isGame = (exclusive || IsFullscreenWindow(hwnd, monitorInfo.rcMonitor)) && !IsExempt(pid);
+        bool isDesktop = !isGame && IsDesktopInFront(hwnd, pid);
 
         var snapshot = new ForegroundSnapshot(isGame, exclusive && isGame, monitor, monitorInfo.rcMonitor,
-            cursorVisible, cursorInfo.ptScreenPos);
+            cursorVisible, cursorInfo.ptScreenPos, isDesktop);
         _last = snapshot;
         return snapshot;
+    }
+
+    private bool IsDesktopInFront(IntPtr hwnd, uint pid)
+    {
+        if (hwnd == IntPtr.Zero || hwnd == GetShellWindow()) return true;
+
+        var cls = new StringBuilder(64);
+        GetClassName(hwnd, cls, cls.Capacity);
+        var name = cls.ToString();
+        if (DesktopClasses.Contains(name)) return true;
+
+        // Start menu / taskbar clicks: keep whatever we decided last time to avoid flicker.
+        if (TaskbarClasses.Contains(name)) return _last?.IsDesktop ?? false;
+
+        // Clicking a desktop widget (e.g. Rainmeter) still counts as being on the desktop.
+        var process = GetProcessName(pid);
+        return _settings.DesktopWidgetProcesses.Any(p => string.Equals(p, process, StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool IsFullscreenWindow(IntPtr hwnd, RECT monitor)
@@ -87,6 +118,13 @@ public sealed class ForegroundDetector
     private bool IsExempt(uint pid)
     {
         if (_settings.NotGameProcesses.Length == 0 || pid == 0) return false;
+        var name = GetProcessName(pid);
+        return _settings.NotGameProcesses.Any(p => string.Equals(p, name, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private string GetProcessName(uint pid)
+    {
+        if (pid == 0) return "";
         if (!_processNames.TryGetValue(pid, out var name))
         {
             try { name = Process.GetProcessById((int)pid).ProcessName; }
@@ -94,6 +132,6 @@ public sealed class ForegroundDetector
             if (_processNames.Count > 256) _processNames.Clear();
             _processNames[pid] = name;
         }
-        return _settings.NotGameProcesses.Any(p => string.Equals(p, name, StringComparison.OrdinalIgnoreCase));
+        return name;
     }
 }

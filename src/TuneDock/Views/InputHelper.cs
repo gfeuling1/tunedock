@@ -8,7 +8,7 @@ namespace TuneDock.Views;
 internal static class InputHelper
 {
     /// <summary>
-    /// True if a mouse event came from a button or link, which handle their own clicks.
+    /// True if a mouse event came from a button, which handle their own clicks.
     /// Anything else on the card counts as "the card" (click to open / drag to move).
     /// </summary>
     public static bool IsFromInteractiveElement(object? source)

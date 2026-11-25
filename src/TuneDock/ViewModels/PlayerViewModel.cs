@@ -22,7 +22,6 @@ public sealed class PlayerViewModel : ObservableObject
 
     private string _title = "Nothing playing";
     private string _artist = "Open YouTube Music in Brave";
-    private string _album = "";
     private ImageSource? _albumArt;
     private bool _isPlaying;
     private bool _canPrevious;
@@ -38,10 +37,6 @@ public sealed class PlayerViewModel : ObservableObject
     {
         _dispatcher = dispatcher;
         _launcher = launcher;
-        OpenAlbumCommand = new RelayCommand(() =>
-        {
-            if (HasAlbum) _launcher.OpenAlbum(Album, Artist);
-        });
 
         PlayPauseCommand = new AsyncCommand(media.TogglePlayPauseAsync);
         NextCommand = new AsyncCommand(media.NextAsync);
@@ -61,24 +56,12 @@ public sealed class PlayerViewModel : ObservableObject
     public ICommand PlayPauseCommand { get; }
     public ICommand NextCommand { get; }
     public ICommand PreviousCommand { get; }
-    public ICommand OpenAlbumCommand { get; }
 
     /// <summary>Called when the card itself (not a button or link) is clicked.</summary>
     public void OpenYouTubeMusic() => _launcher.OpenApp();
 
     public string Title { get => _title; private set => SetProperty(ref _title, value); }
     public string Artist { get => _artist; private set => SetProperty(ref _artist, value); }
-
-    public string Album
-    {
-        get => _album;
-        private set
-        {
-            if (SetProperty(ref _album, value)) OnPropertyChanged(nameof(HasAlbum));
-        }
-    }
-
-    public bool HasAlbum => !string.IsNullOrWhiteSpace(_album);
 
     public ImageSource? AlbumArt
     {
@@ -118,7 +101,6 @@ public sealed class PlayerViewModel : ObservableObject
     {
         Title = title;
         Artist = detail;
-        Album = "";
     }
 
     private void ApplyTrack(TrackInfo? track)
@@ -127,13 +109,11 @@ public sealed class PlayerViewModel : ObservableObject
         {
             Title = "Nothing playing";
             Artist = "Open YouTube Music in Brave";
-            Album = "";
             AlbumArt = null;
             return;
         }
         Title = track.Title;
-        Artist = track.Artist;
-        Album = track.Album;
+        Artist = string.IsNullOrWhiteSpace(track.Artist) ? track.Album : track.Artist;
         AlbumArt = track.AlbumArt;
     }
 
